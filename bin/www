@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-const app = require('../index');  // Aqui estamos importando o app que criamos no index.js
+const app = require('../app');  // Aqui estamos importando o app que criamos no index.js
 const http = require('http');
 
 /**
