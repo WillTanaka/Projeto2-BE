@@ -1,10 +1,12 @@
 const express = require('express');
 const path = require('path');
-const bodyParser = require('body-parser');
-
-const indexRouter = require('./routes/index');
+require("dotenv").config()
 
 const app = express();
+app.use(express.json())
+app.use(express.static(path.join(__dirname, 'public')))
+
+const indexRouter = require('./routes/index');
 
 app.use('/', indexRouter);
 
