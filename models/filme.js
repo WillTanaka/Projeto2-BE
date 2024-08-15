@@ -1,30 +1,24 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../helpers/database");
 
-const UserModel = sequelize.define("User", {
+const FilmeModel = sequelize.define("Filme", {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
-    username: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-    },
-    password: {
+    titulo: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    email: {
+    genero: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
     },
-    isAdmin: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+    ano: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
     },
 });
 
-module.exports = UserModel;
+module.exports = FilmeModel;
