@@ -24,8 +24,6 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     const { username, password, email } = req.body;
 
-    // TODO: Validar os campos
-
     let user = await userDAO.save(username, password, email);
     if (user)
         res.json(sucess(user));
@@ -37,8 +35,6 @@ router.post("/", async (req, res) => {
 router.put("/:id", auth, async (req, res) => {
     const { id } = req.params;
     const { username, email } = req.body;
-
-    // TODO: Validar os campos
 
     let [result] = await userDAO.update(id, username, email);
     if (result)

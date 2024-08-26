@@ -1,39 +1,39 @@
-const { Op } = require("sequelize");
-const userModel = require('../models/user');
+const UserModel = require('../models/user');
 
 module.exports = {
     list: async function() {
-        const users = await userModel.findAll();
-        return users;
+        // Encontrar todos os usuários
+        return await UserModel.find();
     },
     
     save: async function(username, password, email, isAdmin = false) {
-        const user = await userModel.create({
+        // Criar um novo usuário
+        const user = new UserModel({
             username: username,
             password: password,
             email: email,
             isAdmin: isAdmin
         });
-        return user;
+        return await user.save();
     },
 
     update: async function(id, username, email) {
-        return await userModel.update({username, email}, {
-            where: { id: id }
-        });
+        // Atualizar um usuário existente
+        return await UserModel.findByIdAndUpdate(id, { username, email }, { new: true });
     },
 
     delete: async function(id) {
-        return await userModel.destroy({where: { id: id }});
+        // Excluir um usuário
+        return await UserModel.findByIdAndDelete(id);
     },
 
     getById: async function(id) {
-        return await userModel.findByPk(id);
+        // Encontrar um usuário por ID
+        return await UserModel.findById(id);
     },
 
     getByUsername: async function(username) {
-        return await userModel.findOne({
-            where: {username: {[Op.like]: '%' + username + '%'}}
-        });
+        // Encontrar um usuário por username
+        return await UserModel.findOne({ username });
     }
 };

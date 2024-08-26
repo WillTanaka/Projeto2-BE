@@ -1,24 +1,9 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../helpers/database");
+const mongoose = require('mongoose');
 
-const FilmeModel = sequelize.define("Filme", {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    titulo: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    genero: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    ano: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    },
+const FilmeSchema = new mongoose.Schema({
+    titulo: { type: String, required: true },
+    genero: { type: String, required: true },
+    ano: { type: Number, required: true },
 });
 
-module.exports = FilmeModel;
+module.exports = mongoose.model('Filme', FilmeSchema);

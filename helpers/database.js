@@ -1,13 +1,8 @@
-const Sequelize = require("sequelize")
+const mongoose = require("mongoose")
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT
-})
-
-sequelize.authenticate()
-    .then(() => console.log("Conectado no " + process.env.DB_DIALECT + "!"))
-    .catch(error => console.log(error))
-
-module.exports = sequelize
+module.exports = (req, res, next) => {
+    mongoose.connect("mongodb+srv://admin:admin123@projetobe.pimfa.mongodb.net/?retryWrites=true&w=majority&appName=projetobe").catch((err) => {
+        console.log("Error ao conectar no banco...")
+    })
+    return next()    
+}

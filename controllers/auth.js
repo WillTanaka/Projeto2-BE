@@ -1,12 +1,13 @@
 const authService = require('../services/auth');
 
 async function login(req, res) {
-    try {
-        const { username, password } = req.body;
-        const token = await authService.authenticate(username, password);
-        res.json({ token });
-    } catch (error) {
-        res.status(401).json({ message: 'Invalid credentials' });
+    const { username, password } = req.body;
+    const result = await authService.authenticate(username, password);
+
+    if (result.success) {
+        res.json({ token: result.token });
+    } else {
+        res.status(401).json({ message: result.message });
     }
 }
 
