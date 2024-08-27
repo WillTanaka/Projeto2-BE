@@ -1,19 +1,23 @@
-const express = require("express")
-const path = require("path")
+const express = require("express");
+const path = require("path");
 require('dotenv').config();
 
 const app = express();
-app.use(express.json())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const indexRouter = require('./routes/index');
-const auth = require('./routes/auth');
-const user = require('./controllers/userAPI');
+const authAPI = require('./controllers/auth');
+const userAPI = require('./controllers/userAPI');
+const filmeAPI = require('./controllers/filmeAPI');
+const salaAPI = require('./controllers/salaAPI');
+const sessaoAPI = require('./controllers/sessaoAPI');
 
-app.use(require('./helpers/database'))
+app.use(require('./helpers/database'));
 
-app.use('/', indexRouter);
-app.use('/auth', auth);
-app.use('/users', user);
+app.use('/auth', authAPI);
+app.use('/users', userAPI);
+app.use('/filmes', filmeAPI);
+app.use('/salas', salaAPI);
+app.use('/sessoes', sessaoAPI);
 
 module.exports = app;

@@ -1,6 +1,8 @@
+const express = require('express');
 const authService = require('../services/auth');
+const router = express.Router();
 
-async function login(req, res) {
+router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const result = await authService.authenticate(username, password);
 
@@ -9,6 +11,6 @@ async function login(req, res) {
     } else {
         res.status(401).json({ message: result.message });
     }
-}
+});
 
-module.exports = { login };
+module.exports = router;
