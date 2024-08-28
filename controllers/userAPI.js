@@ -6,18 +6,14 @@ const auth = require('../middlewares/auth');
 
 // Listar users
 router.get("/", async (req, res) => {
-    let users;
-    users = await userDAO.list();
-    res.json(sucess(users, "list"));
-});
+    const { limite = 5, pagina = 1 } = req.query;
+    const validLimites = [5, 10, 30];
+    if (!validLimites.includes(parseInt(limite))) {
+        return res.status(400).json(fail("Valor de limite inválido"));
+    }
 
-// Buscar user
-router.get("/:id", auth, async (req, res) => {
-    let user = await userDAO.getById(req.params.id);
-    if (user)
-        res.json(sucess(user));
-    else 
-        res.status(500).json(fail("Usuário não encontrado"));
+    const users = await userDAO.list(parseInt(limite), parseInt(pagina));
+    res.json(sucess(users, "list"));
 });
 
 // Cadastrar user
@@ -71,5 +67,167 @@ router.post("/create-admin", auth, async (req, res) => {
     else 
         res.status(500).json(fail("Falha ao criar o administrador"));
 });
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: Operações relacionadas aos usuários
+ */
+
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Lista todos os usuários
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Lista de usuários
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 list:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       500:
+ *         description: Erro ao listar usuários
+ */
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Cadastra um novo usuário
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *             required:
+ *               - username
+ *               - password
+ *               - email
+ *     responses:
+ *       200:
+ *         description: Usuário cadastrado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       500:
+ *         description: Falha ao salvar o usuário
+ */
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Edita um usuário existente
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Usuário atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       403:
+ *         description: Acesso negado
+ *       500:
+ *         description: Falha ao atualizar o usuário
+ */
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Exclui um usuário pelo ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuário excluído com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       403:
+ *         description: Acesso negado
+ *       500:
+ *         description: Usuário não encontrado
+ */
+
+/**
+ * @swagger
+ * /users/create-admin:
+ *   post:
+ *     summary: Cria um novo administrador
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *             required:
+ *               - username
+ *               - password
+ *               - email
+ *     responses:
+ *       201:
+ *         description: Administrador criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       403:
+ *         description: Acesso negado
+ *       500:
+ *         description: Falha ao criar o administrador
+ */
 
 module.exports = router;

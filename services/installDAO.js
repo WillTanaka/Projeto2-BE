@@ -45,8 +45,8 @@ module.exports = {
         const adminUsername = 'admin';
         const adminPassword = 'admin123';
         const adminEmail = 'admin@bewt.com.br';
-        const existingAdmin = await User.findOne({ username: adminUsername });
-        if (!existingAdmin) {
+        const temAdmin = await User.findOne({ username: adminUsername });
+        if (!temAdmin) {
             await User.create({
                 username: adminUsername,
                 password: adminPassword,
@@ -54,6 +54,6 @@ module.exports = {
                 isAdmin: true
             });
         }
-        return { filmes: insertedFilmes, salas: insertedSalas, sessoes: sessoes, message: 'Database successfully installed and admin user created' };
+        return { filmes: insertedFilmes, salas: insertedSalas, sessoes: sessoes, message: 'Dados iniciais inseridos com sucesso!' };
     }
 };

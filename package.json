@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "nodemon -e js ./bin/www"
+    "start": "nodemon -e js ./bin/www",
+    "swagger-autogen": "node swagger.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -9,6 +10,7 @@
     "mongodb": "^6.8.0",
     "mongoose": "^8.5.4",
     "nodemon": "^3.1.4",
+    "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   }
