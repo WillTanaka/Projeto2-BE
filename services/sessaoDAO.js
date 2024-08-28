@@ -1,12 +1,14 @@
 const SessaoModel = require('../models/sessao');
 
 module.exports = {
-    list: async function(limite = 10, pagina = 1) {
-        return await SessaoModel.find()
-            .populate('FilmeId')
-            .populate('SalaId')
-            .limit(limite)
-            .skip(limite * (pagina - 1));
+    list: async function(limite, pagina) {
+        const limit = parseInt(limite);
+        const skip = (pagina - 1) * limit;
+        return await SessaoModel.find({})
+            .populate('FilmeId', 'titulo')
+            .populate('SalaId', 'numero')
+            .limit(limit)
+            .skip(skip);
     },
 
     save: async function(tempo, FilmeId, SalaId) {
@@ -15,7 +17,11 @@ module.exports = {
     },
 
     update: async function(id, tempo, FilmeId, SalaId) {
-        const updateData = { tempo, FilmeId, SalaId };
+        const updateData = {};
+        if (tempo) updateData.tempo = tempo;
+        if (FilmeId) updateData.FilmeId = FilmeId;
+        if (SalaId) updateData.SalaId = SalaId;
+
         return await SessaoModel.findByIdAndUpdate(id, updateData, { new: true });
     },
 
@@ -25,7 +31,13 @@ module.exports = {
 
     getById: async function(id) {
         return await SessaoModel.findById(id)
-            .populate('FilmeId')
-            .populate('SalaId');
+            .populate('FilmeId', 'titulo')
+            .populate('SalaId', 'numero');
+    },
+
+    findByMovie: async function(filmeId) {
+        return await SessaoModel.find({ FilmeId: filmeId })
+        .populate('FilmeId', 'titulo')
+        .populate('SalaId', 'numero');
     }
 };

@@ -1,75 +1,58 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { sucess, fail } = require('../helpers/resposta');
-const filmeService = require('../services/filmeDAO');
+const { sucess, fail } = require("../helpers/resposta");
+const filmeDAO = require('../services/filmeDAO');
 const auth = require('../middlewares/auth');
 
 // Listar filmes
-router.get('/', async (req, res) => {
-    const { limite = 10, pagina = 1 } = req.query;
-    try {
-        const filmes = await filmeService.list(parseInt(limite), parseInt(pagina));
-        res.json(sucess(filmes, 'list'));
-    } catch (error) {
-        res.status(500).json(fail('Erro ao listar filmes'));
+router.get("/", async (req, res) => {
+    const { limite = 5, pagina = 1 } = req.query;
+    const validLimites = [5, 10, 30];
+    if (!validLimites.includes(parseInt(limite))) {
+        return res.status(400).json(fail("Valor de limite inválido"));
     }
+
+    const filmes = await filmeDAO.list(parseInt(limite), parseInt(pagina));
+    res.json(sucess(filmes, "list"));
 });
 
-// Buscar filme por ID
-router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const filme = await filmeService.getById(id);
-        if (filme) {
-            res.json(sucess(filme));
-        } else {
-            res.status(404).json(fail('Filme não encontrado'));
-        }
-    } catch (error) {
-        res.status(500).json(fail('Erro ao buscar filme'));
-    }
+// Buscar filme por id
+router.get("/:id", auth, async (req, res) => {
+    let filme = await filmeDAO.getById(req.params.id);
+    if (filme)
+        res.json(sucess(filme));
+    else 
+        res.status(500).json(fail("Filme não encontrado"));
 });
 
-// Cadastro de novos filmes
-router.post('/', auth, async (req, res) => {
+// Criar filmes
+router.post("/", auth, async (req, res) => {
     const { titulo, genero, ano } = req.body;
-    try {
-        const filme = await filmeService.save(titulo, genero, ano);
-        res.status(201).json(sucess(filme));
-    } catch (error) {
-        res.status(400).json(fail('Erro ao criar filme'));
-    }
+    const filme = await filmeDAO.save(titulo, genero, ano);
+    if (filme)
+        res.json(sucess(filme));
+    else
+        res.status(500).json(fail("Falha ao criar o filme"));
 });
 
-// Atualizar dados do filme
-router.put('/:id', auth, async (req, res) => {
+// Editar filme
+router.put("/:id", auth, async (req, res) => {
     const { id } = req.params;
     const { titulo, genero, ano } = req.body;
-    try {
-        const filme = await filmeService.update(id, titulo, genero, ano);
-        if (filme) {
-            res.json(sucess(filme));
-        } else {
-            res.status(404).json(fail('Filme não encontrado'));
-        }
-    } catch (error) {
-        res.status(400).json(fail('Erro ao atualizar filme'));
-    }
+    const updatedFilme = await filmeDAO.update(id, titulo, genero, ano);
+    if (updatedFilme)
+        res.json(sucess(updatedFilme));
+    else
+        res.status(500).json(fail("Falha ao editar o filme"));
 });
 
 // Excluir filme
-router.delete('/:id', auth, async (req, res) => {
-    const { id } = req.params;
-    try {
-        const result = await filmeService.delete(id);
-        if (result) {
-            res.json(sucess(result));
-        } else {
-            res.status(404).json(fail('Filme não encontrado'));
-        }
-    } catch (error) {
-        res.status(400).json(fail('Erro ao deletar filme'));
-    }
+router.delete("/:id", auth, async (req, res) => {
+    let result = await filmeDAO.delete(req.params.id);
+    if (result)
+        res.json(sucess(result));
+    else
+        res.status(500).json(fail("Filme não encontrado"));
 });
 
 module.exports = router;

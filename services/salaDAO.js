@@ -1,10 +1,10 @@
 const SalaModel = require('../models/sala');
 
 module.exports = {
-    list: async function(limite = 10, pagina = 1) {
-        return await SalaModel.find()
-            .limit(limite)
-            .skip(limite * (pagina - 1));
+    list: async function(limite, pagina) {
+        const limit = parseInt(limite);
+        const skip = (pagina - 1) * limit;
+        return await SalaModel.find({}).limit(limit).skip(skip);
     },
 
     save: async function(numero, capacidade) {
@@ -13,7 +13,10 @@ module.exports = {
     },
 
     update: async function(id, numero, capacidade) {
-        const updateData = { numero, capacidade };
+        const updateData = {};
+        if (numero) updateData.numero = numero;
+        if (capacidade) updateData.capacidade = capacidade;
+
         return await SalaModel.findByIdAndUpdate(id, updateData, { new: true });
     },
 
@@ -23,5 +26,5 @@ module.exports = {
 
     getById: async function(id) {
         return await SalaModel.findById(id);
-    }
+    },
 };

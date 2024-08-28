@@ -1,10 +1,10 @@
 const FilmeModel = require('../models/filme');
 
 module.exports = {
-    list: async function(limite = 10, pagina = 1) {
-        return await FilmeModel.find()
-            .limit(limite)
-            .skip(limite * (pagina - 1));
+    list: async function(limite, pagina) {
+        const limit = parseInt(limite);
+        const skip = (pagina - 1) * limit;
+        return await FilmeModel.find({}).limit(limit).skip(skip);
     },
 
     save: async function(titulo, genero, ano) {
@@ -13,7 +13,11 @@ module.exports = {
     },
 
     update: async function(id, titulo, genero, ano) {
-        const updateData = { titulo, genero, ano };
+        const updateData = {};
+        if (titulo) updateData.titulo = titulo;
+        if (genero) updateData.genero = genero;
+        if (ano) updateData.ano = ano;
+
         return await FilmeModel.findByIdAndUpdate(id, updateData, { new: true });
     },
 
@@ -23,5 +27,5 @@ module.exports = {
 
     getById: async function(id) {
         return await FilmeModel.findById(id);
-    }
+    },
 };

@@ -1,75 +1,58 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { sucess, fail } = require('../helpers/resposta');
-const salaService = require('../services/salaDAO');
+const { sucess, fail } = require("../helpers/resposta");
+const salaDAO = require('../services/salaDAO');
 const auth = require('../middlewares/auth');
 
-// Listar salas
-router.get('/', async (req, res) => {
-    const { limite = 10, pagina = 1 } = req.query;
-    try {
-        const salas = await salaService.list(parseInt(limite), parseInt(pagina));
-        res.json(sucess(salas, 'list'));
-    } catch (error) {
-        res.status(500).json(fail('Erro ao listar salas'));
+// Listar todas as salas
+router.get("/", async (req, res) => {
+    const { limite = 5, pagina = 1 } = req.query;
+    const validLimites = [5, 10, 30];
+    if (!validLimites.includes(parseInt(limite))) {
+        return res.status(400).json(fail("Valor de limite inválido"));
     }
+
+    const salas = await salaDAO.list(parseInt(limite), parseInt(pagina));
+    res.json(sucess(salas, "list"));
 });
 
-// Buscar sala por ID
-router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const sala = await salaService.getById(id);
-        if (sala) {
-            res.json(sucess(sala));
-        } else {
-            res.status(404).json(fail('Sala não encontrada'));
-        }
-    } catch (error) {
-        res.status(500).json(fail('Erro ao buscar sala'));
-    }
+// Buscar sala por id
+router.get("/:id", auth, async (req, res) => {
+    let sala = await salaDAO.getById(req.params.id);
+    if (sala)
+        res.json(sucess(sala));
+    else 
+        res.status(500).json(fail("Sala não encontrada"));
 });
 
-// Cadastro de novas salas
-router.post('/', auth, async (req, res) => {
+// Criar sala
+router.post("/", auth, async (req, res) => {
     const { numero, capacidade } = req.body;
-    try {
-        const sala = await salaService.save(numero, capacidade);
-        res.status(201).json(sucess(sala));
-    } catch (error) {
-        res.status(400).json(fail('Erro ao criar sala'));
-    }
+    const sala = await salaDAO.save(numero, capacidade);
+    if (sala)
+        res.json(sucess(sala));
+    else
+        res.status(500).json(fail("Falha ao criar a sala"));
 });
 
-// Atualizar dados da sala
-router.put('/:id', auth, async (req, res) => {
+// Editar sala
+router.put("/:id", auth, async (req, res) => {
     const { id } = req.params;
     const { numero, capacidade } = req.body;
-    try {
-        const sala = await salaService.update(id, numero, capacidade);
-        if (sala) {
-            res.json(sucess(sala));
-        } else {
-            res.status(404).json(fail('Sala não encontrada'));
-        }
-    } catch (error) {
-        res.status(400).json(fail('Erro ao atualizar sala'));
-    }
+    const updatedSala = await salaDAO.update(id, numero, capacidade);
+    if (updatedSala)
+        res.json(sucess(updatedSala));
+    else
+        res.status(500).json(fail("Falha ao editar a sala"));
 });
 
 // Excluir sala
-router.delete('/:id', auth, async (req, res) => {
-    const { id } = req.params;
-    try {
-        const result = await salaService.delete(id);
-        if (result) {
-            res.json(sucess(result));
-        } else {
-            res.status(404).json(fail('Sala não encontrada'));
-        }
-    } catch (error) {
-        res.status(400).json(fail('Erro ao deletar sala'));
-    }
+router.delete("/:id", auth, async (req, res) => {
+    let result = await salaDAO.delete(req.params.id);
+    if (result)
+        res.json(sucess(result));
+    else
+        res.status(500).json(fail("Sala não encontrada"));
 });
 
 module.exports = router;
