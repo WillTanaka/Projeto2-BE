@@ -12,6 +12,7 @@ module.exports = {
             { titulo: 'The Lion King', genero: 'Animação', ano: 1994 },
             { titulo: 'The Lion King (Live Action)', genero: 'Animação', ano: 2019 }
         ];
+        const insertedFilmes = await Filme.insertMany(filmes);
 
         const salas = [
             { numero: 1, capacidade: 100 },
@@ -20,6 +21,7 @@ module.exports = {
             { numero: 4, capacidade: 250 },
             { numero: 5, capacidade: 300 }
         ];
+        const insertedSalas = await Sala.insertMany(salas);
 
         const sessoes = [
             { tempo: new Date('2024-08-30T20:00:00Z'), FilmeId: null, SalaId: null },
@@ -27,10 +29,7 @@ module.exports = {
             { tempo: new Date('2024-09-01T18:00:00Z'), FilmeId: null, SalaId: null },
             { tempo: new Date('2024-09-02T21:00:00Z'), FilmeId: null, SalaId: null },
             { tempo: new Date('2024-09-03T19:00:00Z'), FilmeId: null, SalaId: null }
-        ];
-
-        const insertedFilmes = await Filme.insertMany(filmes);
-        const insertedSalas = await Sala.insertMany(salas);
+        ];     
         sessoes[0].FilmeId = insertedFilmes[0]._id;
         sessoes[0].SalaId = insertedSalas[0]._id;
         sessoes[1].FilmeId = insertedFilmes[1]._id;
@@ -62,14 +61,8 @@ module.exports = {
             { username: 'user3', password: 'user123', email: 'user3@bewt.com', isAdmin: false },
             { username: 'user4', password: 'user123', email: 'user4@bewt.com', isAdmin: false }
         ];
+        await User.insertMany(usuariosComuns);
 
-        for (const user of usuariosComuns) {
-            const temUser = await User.findOne({ username: user.username });
-            if (!temUser) {
-                await User.create(user);
-            }
-        }
-
-        return { filmes: insertedFilmes, salas: insertedSalas, sessoes: sessoes, message: 'Dados iniciais inseridos com sucesso!' };
+        return { usuariosComuns: usuariosComuns, filmes: insertedFilmes, salas: insertedSalas, sessoes: sessoes, message: 'Dados iniciais inseridos com sucesso!' };
     }
 };

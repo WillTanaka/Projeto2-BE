@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sucess, fail } = require("../helpers/resposta");
 const filmeDAO = require('../services/filmeDAO');
+const { filmeValida } = require('../helpers/validacao.joi');
 const auth = require('../middlewares/auth');
 
 // Listar filmes
@@ -12,38 +13,60 @@ router.get("/", async (req, res) => {
         return res.status(400).json(fail("Valor de limite inválido"));
     }
 
-    const filmes = await filmeDAO.list(parseInt(limite), parseInt(pagina));
-    res.json(sucess(filmes, "list"));
+    try {
+        const filmes = await filmeDAO.list(parseInt(limite), parseInt(pagina));
+        res.json(sucess(filmes, "list"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao listar filmes"));
+    }
 });
 
-// Criar filmes
+// Criar filme
 router.post("/", auth, async (req, res) => {
-    const { titulo, genero, ano } = req.body;
-    const filme = await filmeDAO.save(titulo, genero, ano);
-    if (filme)
-        res.json(sucess(filme));
-    else
-        res.status(500).json(fail("Falha ao criar o filme"));
+    const { error, value } = filmeValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { titulo, genero, ano } = value;
+        const filme = await filmeDAO.save(titulo, genero, ano);
+        if (filme)
+            res.json(sucess(filme));
+        else
+            res.status(500).json(fail("Falha ao criar o filme"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao criar filme"));
+    }
 });
 
 // Editar filme
 router.put("/:id", auth, async (req, res) => {
-    const { id } = req.params;
-    const { titulo, genero, ano } = req.body;
-    const updatedFilme = await filmeDAO.update(id, titulo, genero, ano);
-    if (updatedFilme)
-        res.json(sucess(updatedFilme));
-    else
-        res.status(500).json(fail("Falha ao editar o filme"));
+    const { error, value } = filmeValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { id } = req.params;
+        const { titulo, genero, ano } = value;
+        const updatedFilme = await filmeDAO.update(id, titulo, genero, ano);
+        if (updatedFilme)
+            res.json(sucess(updatedFilme));
+        else
+            res.status(500).json(fail("Falha ao editar o filme"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao editar filme"));
+    }
 });
 
 // Excluir filme
 router.delete("/:id", auth, async (req, res) => {
-    let result = await filmeDAO.delete(req.params.id);
-    if (result)
-        res.json(sucess(result));
-    else
-        res.status(500).json(fail("Filme não encontrado"));
+    try {
+        let result = await filmeDAO.delete(req.params.id);
+        if (result)
+            res.json(sucess(result));
+        else
+            res.status(404).json(fail("Filme não encontrado"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao excluir filme"));
+    }
 });
 
 /**

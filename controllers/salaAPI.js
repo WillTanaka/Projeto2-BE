@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sucess, fail } = require("../helpers/resposta");
 const salaDAO = require('../services/salaDAO');
+const { salaValida } = require('../helpers/validacao.joi');
 const auth = require('../middlewares/auth');
 
 // Listar todas as salas
@@ -12,38 +13,60 @@ router.get("/", async (req, res) => {
         return res.status(400).json(fail("Valor de limite inválido"));
     }
 
-    const salas = await salaDAO.list(parseInt(limite), parseInt(pagina));
-    res.json(sucess(salas, "list"));
+    try {
+        const salas = await salaDAO.list(parseInt(limite), parseInt(pagina));
+        res.json(sucess(salas, "list"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao listar salas"));
+    }
 });
 
 // Criar sala
 router.post("/", auth, async (req, res) => {
-    const { numero, capacidade } = req.body;
-    const sala = await salaDAO.save(numero, capacidade);
-    if (sala)
-        res.json(sucess(sala));
-    else
-        res.status(500).json(fail("Falha ao criar a sala"));
+    const { error, value } = salaValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { numero, capacidade } = value;
+        const sala = await salaDAO.save(numero, capacidade);
+        if (sala)
+            res.json(sucess(sala));
+        else
+            res.status(500).json(fail("Falha ao criar a sala"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao criar sala"));
+    }
 });
 
 // Editar sala
 router.put("/:id", auth, async (req, res) => {
-    const { id } = req.params;
-    const { numero, capacidade } = req.body;
-    const updatedSala = await salaDAO.update(id, numero, capacidade);
-    if (updatedSala)
-        res.json(sucess(updatedSala));
-    else
-        res.status(500).json(fail("Falha ao editar a sala"));
+    const { error, value } = salaValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { id } = req.params;
+        const { numero, capacidade } = value;
+        const updatedSala = await salaDAO.update(id, numero, capacidade);
+        if (updatedSala)
+            res.json(sucess(updatedSala));
+        else
+            res.status(500).json(fail("Falha ao editar a sala"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao editar sala"));
+    }
 });
 
 // Excluir sala
 router.delete("/:id", auth, async (req, res) => {
-    let result = await salaDAO.delete(req.params.id);
-    if (result)
-        res.json(sucess(result));
-    else
-        res.status(500).json(fail("Sala não encontrada"));
+    try {
+        let result = await salaDAO.delete(req.params.id);
+        if (result)
+            res.json(sucess(result));
+        else
+            res.status(404).json(fail("Sala não encontrada"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao excluir sala"));
+    }
 });
 
 /**

@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { sucess, fail } = require("../helpers/resposta");
 const sessaoDAO = require('../services/sessaoDAO');
+const { sessaoValida } = require('../helpers/validacao.joi');
 const auth = require('../middlewares/auth');
 
-// Listar sessoes
+// Listar sessões
 router.get("/", async (req, res) => {
     const { limite = 5, pagina = 1 } = req.query;
     const validLimites = [5, 10, 30];
@@ -12,57 +13,60 @@ router.get("/", async (req, res) => {
         return res.status(400).json(fail("Valor de limite inválido"));
     }
 
-    const sessoes = await sessaoDAO.list(parseInt(limite), parseInt(pagina));
-    res.json(sucess(sessoes, "list"));
-});
-
-// Rota especial - listar sessoes por filme
-router.get('/filme-sessoes', async (req, res) => {
-    const { filmeId } = req.query;
-    if (!filmeId) {
-        return res.status(400).json(fail('Parâmetro "filmeId" é obrigatório'));
+    try {
+        const sessoes = await sessaoDAO.list(parseInt(limite), parseInt(pagina));
+        res.json(sucess(sessoes, "list"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao listar sessões"));
     }
-    const sessoes = await sessaoDAO.findByMovie(filmeId);
-    res.json(sucess(sessoes, "Sessões por filme"));
 });
 
-// Buscar sessao
-router.get("/:id", auth, async (req, res) => {
-    let sessao = await sessaoDAO.getById(req.params.id);
-    if (sessao)
-        res.json(sucess(sessao));
-    else 
-        res.status(500).json(fail("Sessão não encontrada"));
-});
-
-// Criar sessao
+// Criar sessão
 router.post("/", auth, async (req, res) => {
-    const { tempo, FilmeId, SalaId } = req.body;
-    const sessao = await sessaoDAO.save(tempo, FilmeId, SalaId);
-    if (sessao)
-        res.json(sucess(sessao));
-    else
-        res.status(500).json(fail("Falha ao criar a sessão"));
+    const { error, value } = sessaoValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { tempo, FilmeId, SalaId } = value;
+        const sessao = await sessaoDAO.save(tempo, FilmeId, SalaId);
+        if (sessao)
+            res.json(sucess(sessao));
+        else
+            res.status(500).json(fail("Falha ao criar a sessão"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao criar sessão"));
+    }
 });
 
-// Editar sessao
+// Editar sessão
 router.put("/:id", auth, async (req, res) => {
-    const { id } = req.params;
-    const { tempo, FilmeId, SalaId } = req.body;
-    const updatedSessao = await sessaoDAO.update(id, tempo, FilmeId, SalaId);
-    if (updatedSessao)
-        res.json(sucess(updatedSessao));
-    else
-        res.status(500).json(fail("Falha ao editar a sessão"));
+    const { error, value } = sessaoValida.validate(req.body);
+    if (error) return res.status(400).json(fail(error.details[0].message));
+
+    try {
+        const { id } = req.params;
+        const { tempo, FilmeId, SalaId } = value;
+        const updatedSessao = await sessaoDAO.update(id, tempo, FilmeId, SalaId);
+        if (updatedSessao)
+            res.json(sucess(updatedSessao));
+        else
+            res.status(500).json(fail("Falha ao editar a sessão"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao editar sessão"));
+    }
 });
 
-// Excluir sessao
+// Excluir sessão
 router.delete("/:id", auth, async (req, res) => {
-    let result = await sessaoDAO.delete(req.params.id);
-    if (result)
-        res.json(sucess(result));
-    else
-        res.status(500).json(fail("Sessão não encontrada"));
+    try {
+        let result = await sessaoDAO.delete(req.params.id);
+        if (result)
+            res.json(sucess(result));
+        else
+            res.status(404).json(fail("Sessão não encontrada"));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao excluir sessão"));
+    }
 });
 
 /**
