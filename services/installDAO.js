@@ -28,6 +28,7 @@ module.exports = {
             { tempo: new Date('2024-09-02T21:00:00Z'), FilmeId: null, SalaId: null },
             { tempo: new Date('2024-09-03T19:00:00Z'), FilmeId: null, SalaId: null }
         ];
+
         const insertedFilmes = await Filme.insertMany(filmes);
         const insertedSalas = await Sala.insertMany(salas);
         sessoes[0].FilmeId = insertedFilmes[0]._id;
@@ -54,6 +55,21 @@ module.exports = {
                 isAdmin: true
             });
         }
+
+        const usuariosComuns = [
+            { username: 'user1', password: 'user123', email: 'user1@bewt.com', isAdmin: false },
+            { username: 'user2', password: 'user123', email: 'user2@bewt.com', isAdmin: false },
+            { username: 'user3', password: 'user123', email: 'user3@bewt.com', isAdmin: false },
+            { username: 'user4', password: 'user123', email: 'user4@bewt.com', isAdmin: false }
+        ];
+
+        for (const user of usuariosComuns) {
+            const temUser = await User.findOne({ username: user.username });
+            if (!temUser) {
+                await User.create(user);
+            }
+        }
+
         return { filmes: insertedFilmes, salas: insertedSalas, sessoes: sessoes, message: 'Dados iniciais inseridos com sucesso!' };
     }
 };
