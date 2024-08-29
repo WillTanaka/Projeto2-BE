@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
     const { limite = 5, pagina = 1 } = req.query;
     const validLimites = [5, 10, 30];
     if (!validLimites.includes(parseInt(limite))) {
-        return res.status(400).json(fail("Valor de limite inválido"));
+        return res.status(400).json(fail("Valor de limite inválido, inseria 5, 10 ou 30"));
     }
 
     const users = await userDAO.list(parseInt(limite), parseInt(pagina));

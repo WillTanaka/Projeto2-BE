@@ -21,6 +21,19 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get('/filme-sessoes', async (req, res) => {
+    const { filmeId } = req.query;
+    if (!filmeId) {
+        return res.status(400).json(fail('O parâmetro filmeId é obrigatório.'));
+    }
+    const sessoes = await sessaoDAO.findByMovie(filmeId);
+    if (sessoes.length > 0) {
+        res.json(sucess(sessoes, 'sessoes'));
+    } else {
+        res.status(404).json(fail('Nenhuma sessão encontrada para o filme especificado.'));
+    }
+});
+
 // Criar sessão
 router.post("/", auth, async (req, res) => {
     const { error, value } = sessaoValida.validate(req.body);
@@ -69,6 +82,16 @@ router.delete("/:id", auth, async (req, res) => {
     }
 });
 
+router.get("/sessoes-por-sala", auth, async (req, res) => {
+    try {
+        const sessoesSalaFilmes = await sessaoDAO.countSessoesSalaFilme();
+        res.json(sucess(sessoesSalaFilmes));
+    } catch (error) {
+        res.status(500).json(fail("Erro ao buscar sessões por sala e filme"));
+    }
+});
+
+
 /**
  * @swagger
  * tags:
@@ -111,25 +134,22 @@ router.delete("/:id", auth, async (req, res) => {
 
 /**
  * @swagger
- * /sessoes/{id}:
+ * /sessoes/filme-sessoes:
  *   get:
- *     summary: Busca uma sessão pelo ID
- *     tags: [Sessões]
+ *     summary: Buscar sessões por filme
+ *     description: Retorna as sessões de um filme específico.
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
+ *       - in: query
+ *         name: filmeId
  *         schema:
  *           type: string
+ *         required: true
+ *         description: O ID do filme.
  *     responses:
  *       200:
- *         description: Sessão encontrada
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *       500:
- *         description: Sessão não encontrada
+ *         description: Lista de sessões encontradas.
+ *       404:
+ *         description: Nenhuma sessão encontrada para o filme especificado.
  */
 
 /**

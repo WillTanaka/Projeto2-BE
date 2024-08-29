@@ -1,9 +1,12 @@
 const express = require("express");
 const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
+const connectDB = require('./helpers/database');
 
 const app = express();
 app.use(express.json());
+
+connectDB();
 
 const authAPI = require('./controllers/auth');
 const userAPI = require('./controllers/userAPI');

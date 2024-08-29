@@ -2,9 +2,8 @@ const SalaModel = require('../models/sala');
 
 module.exports = {
     list: async function (limite, pagina) {
-        const limit = parseInt(limite);
-        const skip = (pagina - 1) * limit;
-        return await SalaModel.find({}).limit(limit).skip(skip);
+        const skip = (pagina - 1) * limite;
+        return await SalaModel.find({}).limit(limite).skip(skip);
     },
 
     save: async function (numero, capacidade) {

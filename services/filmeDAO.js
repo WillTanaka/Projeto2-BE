@@ -2,9 +2,8 @@ const FilmeModel = require('../models/filme');
 
 module.exports = {
     list: async function (limite, pagina) {
-        const limit = parseInt(limite);
-        const skip = (pagina - 1) * limit;
-        return await FilmeModel.find({}).limit(limit).skip(skip);
+        const skip = (pagina - 1) * limite;
+        return await FilmeModel.find({}).limit(limite).skip(skip);
     },
 
     save: async function (titulo, genero, ano) {

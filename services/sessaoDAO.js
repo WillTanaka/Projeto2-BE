@@ -2,12 +2,11 @@ const SessaoModel = require('../models/sessao');
 
 module.exports = {
     list: async function(limite, pagina) {
-        const limit = parseInt(limite);
-        const skip = (pagina - 1) * limit;
+        const skip = (pagina - 1) * limite;
         return await SessaoModel.find({})
             .populate('FilmeId', 'titulo')
             .populate('SalaId', 'numero')
-            .limit(limit)
+            .limit(limite)
             .skip(skip);
     },
 
@@ -39,5 +38,33 @@ module.exports = {
         return await SessaoModel.find({ FilmeId: filmeId })
         .populate('FilmeId', 'titulo')
         .populate('SalaId', 'numero');
+    },
+    // retornar quantas sessoes por sala e quais os filmes
+    countSessoesSalaFilme: async function() {
+        const sessoes = await SessaoModel.find({})
+            .populate('FilmeId', 'titulo')
+            .populate('SalaId', 'numero');
+
+        const resultado = {};
+
+        sessoes.forEach(sessao => {
+            const salaId = sessao.SalaId._id;
+            const filmeTitulo = sessao.FilmeId.titulo;
+
+            if (!resultado[salaId]) {
+                resultado[salaId] = {
+                    sala: sessao.SalaId.numero,
+                    totalSessoes: 0,
+                    filmes: []
+                };
+            }
+            resultado[salaId].totalSessoes += 1;
+
+            if (!resultado[salaId].filmes.includes(filmeTitulo)) {
+                resultado[salaId].filmes.push(filmeTitulo);
+            }
+        });
+        return resultado;
+        //{sala: 1, totalSessoes: 3, filmes: ['Cars 1', 'Cars 2']},
     }
-};
+}

@@ -2,9 +2,8 @@ const UserModel = require('../models/user');
 
 module.exports = {
     list: async function(limite, pagina) {
-        const limit = parseInt(limite);
-        const skip = (pagina - 1) * limit;
-        return await UserModel.find({}).limit(limit).skip(skip);
+        const skip = (pagina - 1) * limite;
+        return await UserModel.find({}).limit(limite).skip(skip);
     },
 
     save: async function(username, password, email, isAdmin = false) {
