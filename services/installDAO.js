@@ -51,15 +51,16 @@ module.exports = {
                 username: adminUsername,
                 password: adminPassword,
                 email: adminEmail,
+                countLogin: 0,
                 isAdmin: true
             });
         }
 
         const usuariosComuns = [
-            { username: 'user1', password: 'user123', email: 'user1@bewt.com', isAdmin: false },
-            { username: 'user2', password: 'user123', email: 'user2@bewt.com', isAdmin: false },
-            { username: 'user3', password: 'user123', email: 'user3@bewt.com', isAdmin: false },
-            { username: 'user4', password: 'user123', email: 'user4@bewt.com', isAdmin: false }
+            { username: 'user1', password: 'user123', email: 'user1@bewt.com', countLogin: 0, isAdmin: false },
+            { username: 'user2', password: 'user123', email: 'user2@bewt.com', countLogin: 0, isAdmin: false },
+            { username: 'user3', password: 'user123', email: 'user3@bewt.com', countLogin: 0, isAdmin: false },
+            { username: 'user4', password: 'user123', email: 'user4@bewt.com', countLogin: 0, isAdmin: false }
         ];
         await User.insertMany(usuariosComuns);
 

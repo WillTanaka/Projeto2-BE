@@ -22,5 +22,8 @@ module.exports = {
 
     delete: async function(id) {
         return await UserModel.findByIdAndDelete(id);
+    },
+    countLogin: async function() {
+        
     }
 };

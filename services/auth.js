@@ -16,7 +16,11 @@ async function authenticate(username, password) {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRATION }
     );
-    return { success: true, token };
+
+    user.countLogin = (user.countLogin || 0) + 1;
+    await user.save();
+
+    return { success: true, token, countLogin: user.countLogin};
 }
 
 module.exports = { authenticate };

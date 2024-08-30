@@ -5,7 +5,7 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const result = await authService.authenticate(username, password);
-
+    
     if (result.success) {
         res.json({ token: result.token });
     } else {

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sucess, fail } = require("../helpers/resposta");
 const sessaoDAO = require('../services/sessaoDAO');
-const { sessaoValida } = require('../helpers/validacao.joi');
+//const { sessaoValida } = require('../helpers/validacao.joi');
 const auth = require('../middlewares/auth');
 
 // Listar sessões
@@ -36,11 +36,8 @@ router.get('/filme-sessoes', async (req, res) => {
 
 // Criar sessão
 router.post("/", auth, async (req, res) => {
-    const { error, value } = sessaoValida.validate(req.body);
-    if (error) return res.status(400).json(fail(error.details[0].message));
-
     try {
-        const { tempo, FilmeId, SalaId } = value;
+        const { tempo, FilmeId, SalaId } = req.body;
         const sessao = await sessaoDAO.save(tempo, FilmeId, SalaId);
         if (sessao)
             res.json(sucess(sessao));
@@ -53,8 +50,8 @@ router.post("/", auth, async (req, res) => {
 
 // Editar sessão
 router.put("/:id", auth, async (req, res) => {
-    const { error, value } = sessaoValida.validate(req.body);
-    if (error) return res.status(400).json(fail(error.details[0].message));
+    //const { error, value } = sessaoValida.validate(req.body);
+    //if (error) return res.status(400).json(fail(error.details[0].message));
 
     try {
         const { id } = req.params;
